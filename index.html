@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="BOOKS">
+<meta name="theme-color" content="#f9dce8">
+<title>BOOKS</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ background:#f9dce8;
+ color:#111;
+ font-family:Georgia,serif;
+}
+.app{
+ max-width:560px;
+ margin:auto;
+ padding:20px 16px 100px;
+ min-height:100vh;
+}
+header{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+}
+.logo{
+ font-size:42px;
+ font-weight:bold;
+ letter-spacing:1px;
+}
+.heart{color:#f09abb;font-size:38px}
+h1{font-size:29px;margin:18px 0 5px}
+.subtitle{font:15px Arial;color:#4d4447}
+.card{
+ background:#fff3f7;
+ border:1px solid #edc8d4;
+ border-radius:22px;
+ padding:17px;
+ margin:14px 0;
+}
+button{
+ border:0;
+ border-radius:22px;
+ padding:12px 17px;
+ background:#f1aec3;
+ color:#111;
+ font-weight:bold;
+ font-size:15px;
+}
+.full{width:100%;margin-top:10px}
+.outline{
+ background:transparent;
+ border:1px solid #e49bb3;
+}
+.search{
+ width:100%;
+ padding:14px;
+ border-radius:16px;
+ border:1px solid #e7c5d0;
+ background:#fff8fa;
+ font-size:16px;
+}
+.tabs{
+ display:flex;
+ gap:7px;
+ overflow-x:auto;
+ margin:12px 0;
+}
+.tab{
+ white-space:nowrap;
+ padding:8px 12px;
+ border-radius:18px;
+ background:#fff5f8;
+ border:1px solid #e7c5d0;
+}
+.tab.active{background:#efadc1}
+.grid{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:10px;
+}
+.book{
+ background:#fff3f7;
+ border:1px solid #eccbd5;
+ border-radius:15px;
+ padding:8px;
+}
+.cover{
+ height:145px;
+ border-radius:9px;
+ background:linear-gradient(150deg,#e779a0,#714558);
+ color:white;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ text-align:center;
+ padding:8px;
+ font:bold 13px Arial;
+}
+.book b{
+ display:block;
+ margin-top:7px;
+ font-size:14px;
+}
+.book small{font:11px Arial;color:#66565c}
+.stats{
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ text-align:center;
+}
+.stat b{
+ display:block;
+ font-size:27px;
+}
+.stat span{font:11px Arial}
+.bar{
+ height:9px;
+ background:#efcbd6;
+ border-radius:10px;
+ overflow:hidden;
+}
+.bar i{
+ display:block;
+ height:100%;
+ background:#e98bab;
+}
+.shelf{
+ background:#efced8;
+ padding:14px 8px 8px;
+ border-radius:17px;
+ margin:12px 0;
+}
+.shelf-title{
+ font:bold 13px Arial;
+ margin-bottom:8px;
+}
+.shelf-row{
+ display:flex;
+ gap:7px;
+ min-height:135px;
+ align-items:flex-end;
+ overflow-x:auto;
+ border-bottom:10px solid #b9768a;
+}
+.shelf-book{
+ min-width:58px;
+ height:120px;
+ padding:6px;
+ border-radius:6px 6px 2px 2px;
+ color:white;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ text-align:center;
+ font:bold 10px Arial;
+}
+.nav{
+ position:fixed;
+ bottom:0;
+ left:50%;
+ transform:translateX(-50%);
+ width:min(560px,100%);
+ background:#fcebf0ee;
+ border-top:1px solid #e7c7d2;
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ padding:10px 5px calc(10px + env(safe-area-inset-bottom));
+}
+.nav button{padding:5px;background:transparent}
+.nav div{text-align:center;font:11px Arial}
+.icon{font-size:22px;display:block}
+.modal{
+ display:none;
+ position:fixed;
+ inset:0;
+ background:#0007;
+ align-items:flex-end;
+ z-index:20;
+}
+.modal.show{display:flex}
+.sheet{
+ width:min(560px,100%);
+ max-height:92vh;
+ overflow:auto;
+ background:#fdebf1;
+ border-radius:25px 25px 0 0;
+ padding:20px;
+}
+.input,.select,.textarea{
+ width:100%;
+ padding:12px;
+ border:1px solid #e4c2cd;
+ border-radius:13px;
+ background:#fff8fa;
+ margin:5px 0 12px;
+ font-size:15px;
+}
+.textarea{min-height:110px}
+.empty{text-align:center;padding:30px;font:15px Arial}
+.rating{font-size:28px;color:#d6adb9}
+.rating .on{color:#e79a42}
+.hidden{display:none}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header>
+ <div class="logo">BOOKS <span class="heart">♡</span></div>
+</header>
+
+<div id="home">
+ <h1>Mi biblioteca 📚</h1>
+ <p class="subtitle">Tu biblioteca. Tus historias. Tu mundo.</p>
+
+ <div class="card" id="current"></div>
+
+ <div class="card stats">
+  <div class="stat"><b id="total">0</b><span>Total</span></div>
+  <div class="stat"><b id="read">0</b><span>Leídos</span></div>
+  <div class="stat"><b id="reading">0</b><span>Ahora</span></div>
+  <div class="stat"><b id="pending">0</b><span>Pendientes</span></div>
+ </div>
+
+ <div class="card">
+  <h2>Mis favoritos ♡</h2>
+  <div id="favorites" class="grid"></div>
+ </div>
+
+ <button class="full" onclick="openAdd()">＋ Añadir libro</button>
+ <button class="full outline" onclick="showLibrary()">📚 Ver biblioteca</button>
+ <button class="full outline" onclick="showShelf()">🏠 Mi estantería</button>
+ <button class="full outline" onclick="showStats()">📊 Estadísticas</button>
+</div>
+
+<div id="library" class="hidden">
+ <button class="outline" onclick="home()">← Inicio</button>
+ <h1>Mi biblioteca 📚</h1>
+ <input class="search" id="search" placeholder="🔎 Buscar..." oninput="render()">
+
+ <div class="tabs">
+  <button class="tab active" onclick="filterBooks('Todos',this)">Todos</button>
+  <button class="tab" onclick="filterBooks('❤️ Leído',this)">Leídos</button>
+  <button class="tab" onclick="filterBooks('📖 Leyendo',this)">Leyendo</button>
+  <button class="tab" onclick="filterBooks('⏳ Pendiente',this)">Pendientes</button>
+  <button class="tab" onclick="filterBooks('🏠 En mi estantería',this)">Estantería</button>
+ </div>
+
+ <div id="books" class="grid"></div>
+</div>
+
+<div id="shelf" class="hidden">
+ <button class="outline" onclick="home()">← Inicio</button>
+ <h1>Mi estantería 🏠</h1>
+ <p class="subtitle">Tus libros físicos colocados en sus baldas.</p>
+ <div id="shelves"></div>
+</div>
+
+<div id="stats" class="hidden">
+ <button class="outline" onclick="home()">← Inicio</button>
+ <h1>Estadísticas 📊</h1>
+
+ <div class="card">
+  <h2 id="statsBooks">0 libros leídos</h2>
+  <p id="statsPages">0 páginas</p>
+  <p>⭐ Valoración media: <b id="average">—</b></p>
+  <p>❤️ Favoritos: <b id="favNumber">0</b></p>
+ </div>
+
+ <div class="card">
+  <h2>Mis géneros</h2>
+  <div id="genres"></div>
+ </div>
+</div>
+
+</div>
+
+<div class="nav">
+ <div onclick="home()">⌂<span class="icon">Inicio</span></div>
+ <div onclick="showLibrary()">▥<span class="icon">Biblioteca</span></div>
+ <div><button onclick="openAdd()">＋</button><span class="icon">Añadir</span></div>
+ <div onclick="showStats()">▥<span class="icon">Stats</span></div>
+</div>
+
+<div class="modal" id="modal">
+ <div class="sheet">
+  <button onclick="closeAdd()" style="float:right;background:transparent;font-size:25px">×</button>
+
+  <h2>Añadir libro 📚</h2>
+
+  <label>Título *</label>
+  <input class="input" id="title" placeholder="Título">
+
+  <label>Autora/or</label>
+  <input class="input" id="author" placeholder="Autora/or">
+
+  <label>Páginas</label>
+  <input class="input" id="pages" type="number" placeholder="384">
+
+  <label>Género</label>
+  <input class="input" id="genre" placeholder="Romance">
+
+  <label>Estado</label>
+  <select class="select" id="status">
+   <option>⏳ Pendiente</option>
+   <option>📖 Leyendo</option>
+   <option>❤️ Leído</option>
+   <option>🏠 En mi estantería</option>
+  </select>
+
+  <label>Formato</label>
+  <select class="select" id="format">
+   <option>📕 Físico</option>
+   <option>📱 Digital</option>
+   <option>🎧 Audiolibro</option>
+  </select>
+
+  <label>Fecha de inicio</label>
+  <input class="input" id="start" type="date">
+
+  <label>Fecha de finalización</label>
+  <input class="input" id="end" type="date">
+
+  <label>Valoración</label>
+  <div class="rating" id="rating"></div>
+
+  <label>Notas</label>
+  <textarea class="textarea" id="notes" placeholder="Escribe aquí lo que quieras recordar..."></textarea>
+
+  <button class="full" onclick="addBook()">Añadir a BOOKS</button>
+ </div>
+</div>
+
+<script>
+
+let filter='Todos';
+let rating=0;
+
+const firstBook={
+ id:1,
+ title:'A fuego lento',
+ author:'Nikki Walls',
+ pages:384,
+ genre:'Romance',
+ status:'📖 Leyendo',
+ format:'📕 Físico',
+ progress:72,
+ rating:0,
+ notes:'',
+ favorite:false,
+ start:'2026-08-13',
+ end:''
+};
+
+function books(){
+ let x=localStorage.getItem('BOOKS');
+ if(x)return JSON.parse(x);
+ localStorage.setItem('BOOKS',JSON.stringify([firstBook]));
+ return [firstBook];
+}
+
+function save(x){
+ localStorage.setItem('BOOKS',JSON.stringify(x));
+}
+
+function home(){
+ document.querySelectorAll('.app>div:not(.nav)').forEach(x=>x.classList.add('hidden'));
+ document.getElementById('home').classList.remove('hidden');
+ renderHome();
+}
+
+function showLibrary(){
+ document.querySelectorAll('.app>div:not(.nav)').forEach(x=>x.classList.add('hidden'));
+ document.getElementById('library').classList.remove('hidden');
+ render();
+}
+
+function showShelf(){
+ document.querySelectorAll('.app>div:not(.nav)').forEach(x=>x.classList.add('hidden'));
+ document.getElementById('shelf').classList.remove('hidden');
+ renderShelf();
+}
+
+function showStats(){
+ document.querySelectorAll('.app>div:not(.nav)').forEach(x=>x.classList.add('hidden'));
+ document.getElementById('stats').classList.remove('hidden');
+ renderStats();
+}
+
+function renderHome(){
+
+ let b=books();
+
+ let reading=b.find(x=>x.status==='📖 Leyendo');
+
+ document.getElementById('current').innerHTML=reading?
+ `<b>LEYENDO AHORA</b>
+ <h2>${esc(reading.title)}</h2>
+ <p>${esc(reading.author)}</p>
+ <p>${reading.progress||0}%</p>
+ <div class="bar"><i style="width:${reading.progress||0}%"></i></div>
+ <p>${reading.pages?Math.round(reading.pages*(reading.progress||0)/100)+' / '+reading.pages+' páginas':''}</p>
+ <button onclick="detail(${reading.id})">Abrir libro →</button>`
+ :
+ `<h2>No estás leyendo ningún libro 💗</h2>
+ <button onclick="openAdd()">＋ Elegir libro</button>`;
+
+ document.getElementById('total').textContent=b.length;
+ document.getElementById('read').textContent=b.filter(x=>x.status==='❤️ Leído').length;
+ document.getElementById('reading').textContent=b.filter(x=>x.status==='📖 Leyendo').length;
+ document.getElementById('pending').textContent=b.filter(x=>x.status==='⏳ Pendiente').length;
+
+ let fav=b.filter(x=>x.favorite);
+
+ document.getElementById('favorites').innerHTML=
+ fav.length?fav.map(x=>card(x)).join(''):
+ '<div class="empty" style="grid-column:1/-1">Todavía no tienes favoritos ♡</div>';
+}
+
+function card(x){
+ return `<div class="book" onclick="detail(${x.id})">
+ <div class="cover">${esc(x.title)}</div>
+ <b>${esc(x.title)}</b>
+ <small>${esc(x.author)}<br>${esc(x.status)}</small>
+ </div>`;
+}
+
+function render(){
+
+ let q=(document.getElementById('search')?.value||'').toLowerCase();
+
+ let list=books().filter(x=>
+ (filter==='Todos'||x.status===filter) &&
+ (`${x.title} ${x.author} ${x.genre}`).toLowerCase().includes(q)
+ );
+
+ document.getElementById('books').innerHTML=
+ list.length?list.map(card).join(''):
+ '<div class="empty" style="grid-column:1/-1">No hay libros aquí todavía 📚</div>';
+}
+
+function filterBooks(x,el){
+ filter=x;
+ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+ el.classList.add('active');
+ render();
+}
+
+function openAdd(){
+ rating=0;
+ drawRating();
+ document.getElementById('modal').classList.add('show');
+}
+
+function closeAdd(){
+ document.getElementById('modal').classList.remove('show');
+}
+
+function drawRating(){
+ document.getElementById('rating').innerHTML=
+ [1,2,3,4,5].map(n=>
+ `<span class="${n<=rating?'on':''}" onclick="rating=${n};drawRating()">★</span>`
+ ).join('');
+}
+
+function addBook(){
+
+ let title=document.getElementById('title').value.trim();
+
+ if(!title){
+  alert('Escribe el título del libro 💗');
+  return;
+ }
+
+ let b=books();
+
+ b.push({
+  id:Date.now(),
+  title:title,
+  author:document.getElementById('author').value||'Autora/or desconocido',
+  pages:+document.getElementById('pages').value||0,
+  genre:document.getElementById('genre').value||'',
+  status:document.getElementById('status').value,
+  format:document.getElementById('format').value,
+  start:document.getElementById('start').value,
+  end:document.getElementById('end').value,
+  rating:rating,
+  notes:document.getElementById('notes').value,
+  progress:0,
+  favorite:false
+ });
+
+ save(b);
+ closeAdd();
+ showLibrary();
+}
+
+function detail(id){
+
+ let b=books();
+ let x=b.find(a=>a.id===id);
+
+ if(!x)return;
+
+ alert(
+ x.title+
+ '\\n\\n'+
+ 'Autora/or: '+x.author+
+ '\\nEstado: '+x.status+
+ '\\nPáginas: '+(x.pages||'—')+
+ '\\nGénero: '+(x.genre||'—')+
+ '\\nFormato: '+x.format+
+ '\\nValoración: '+('★'.repeat(x.rating||0))+
+ '\\n\\nNotas: '+(x.notes||'Sin notas')+
+ '\\n\\nPuedes cambiar el estado desde el botón siguiente.'
+ );
+
+ let choice=prompt(
+ 'Escribe el nuevo estado:\\n\\n1 = Pendiente\\n2 = Leyendo\\n3 = Leído\\n4 = Estantería',
+ '2'
+ );
+
+ if(choice){
+
+  let states=[
+   '⏳ Pendiente',
+   '📖 Leyendo',
+   '❤️ Leído',
+   '🏠 En mi estantería'
+  ];
+
+  let n=parseInt(choice)-1;
+
+  if(states[n]){
+   x.status=states[n];
+
+   if(x.status==='❤️ Leído'){
+    x.progress=100;
+   }
+
+   save(b);
+   renderHome();
+   render();
+  }
+ }
+}
+
+function renderShelf(){
+
+ let b=books().filter(x=>x.format==='📕 Físico'||x.status==='🏠 En mi estantería');
+
+ let html='';
+
+ for(let i=0;i<3;i++){
+
+  let part=b.slice(i*6,i*6+6);
+
+  html+=`
+  <div class="shelf">
+   <div class="shelf-title">BALDA ${i+1}</div>
+   <div class="shelf-row">
+   ${
+    part.length?
+    part.map(x=>
+    `<div class="shelf-book"
+    style="background:${['#b96883','#8c5a6a','#c27c91','#715360','#d18da2','#996070'][x.id%6]}"
+    onclick="detail(${x.id})">
+    ${esc(x.title)}
+    </div>`).join(''):
+    '<span style="padding:20px;font:13px Arial">Esta balda está libre ✨</span>'
+   }
+   </div>
+  </div>`;
+ }
+
+ document.getElementById('shelves').innerHTML=html;
+}
+
+function renderStats(){
+
+ let b=books();
+
+ let read=b.filter(x=>x.status==='❤️ Leído');
+
+ let pages=read.reduce((a,x)=>a+(x.pages||0),0);
+
+ let ratings=read.filter(x=>x.rating);
+
+ let avg=ratings.length?
+ (ratings.reduce((a,x)=>a+x.rating,0)/ratings.length).toFixed(1):
+ '—';
+
+ document.getElementById('statsBooks').textContent=read.length+' libros leídos';
+ document.getElementById('statsPages').textContent=pages+' páginas';
+ document.getElementById('average').textContent=avg;
+ document.getElementById('favNumber').textContent=b.filter(x=>x.favorite).length;
+
+ let genres={};
+
+ b.forEach(x=>{
+  if(x.genre)genres[x.genre]=(genres[x.genre]||0)+1;
+ });
+
+ document.getElementById('genres').innerHTML=
+ Object.keys(genres).length?
+ Object.entries(genres).map(x=>`<p>${esc(x[0])} — <b>${x[1]}</b></p>`).join(''):
+ 'Todavía no hay géneros registrados.';
+}
+
+function esc(x){
+ return String(x||'').replace(/[&<>"']/g,m=>({
+ '&':'&amp;',
+ '<':'&lt;',
+ '>':'&gt;',
+ '"':'&quot;',
+ "'":'&#39;'
+ })[m]);
+}
+
+drawRating();
+renderHome();
+
+</script>
+
+</body>
+</html>
